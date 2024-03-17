@@ -73,23 +73,25 @@ fn get_max_word_chain(
 ) -> u8 {
     // end of recursion: we cannot go any further so we return the current depth
 
-    println!("current word: {:?}", current_word);
-    println!("word vector: {:?}", word_vector);
-    println!("depth is {}", depth);
-    println!("");
-
     if word_vector.len() == 0 {
+        println!("Found all possible word chain for this path");
         return depth;
     }
 
     depth += 1;
+
+    println!("current word: {current_word:?}");
+    println!("word vector: {:?}", word_vector);
+    println!("depth is {}", depth);
+    println!("");
 
     // here we will find the new WordElement to continue the chain and we will increase the depth
 
     let current_last_letter = current_word.last_letter;
     // here we need to search for a word in word_vector that has a first_letter that matches the current_last_letter
 
-    let mut current_max_depth: u8 = 0;
+    let mut branch_depth: Vec<u8> = Vec::new();
+    let mut found_match = false;
     for (
         i,
         WordElements {
@@ -107,12 +109,25 @@ fn get_max_word_chain(
 
             let new_depth = get_max_word_chain(new_word, new_word_vector, depth);
 
-            // by this point we got a new length if it's larger than the current one, then we shift to that one
-            if new_depth > current_max_depth {
-                current_max_depth = new_depth;
-            }
+            // we will add the depth that we get from this set of paths to the total
+            branch_depth.push(new_depth);
+            found_match = true;
         }
     }
-    depth += current_max_depth;
+
+    if found_match {
+        match branch_depth.iter().max() {
+            Some(max) => return *max,
+            None => panic!("Why couldn't I find a max value?"),
+        }
+    }
+
+    // there is no word to containue the word chain, we need to return the current depth
+    //
+
+    println!("Found no more possible combinations\n");
     depth
+    // println!("Adding current max depth to the overall depth");
+    // depth += current_max_depth;
+    // depth
 }
